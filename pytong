@@ -1,0 +1,136 @@
+import time 
+import random
+from functools import cmp_to_key
+
+compare_amount = 0
+
+def compare(x, y):
+    global compare_amount 
+    compare_amount += 1
+
+    return x - y
+
+def partition(
+            A: list, 
+            p: int, 
+            r: int            
+)           -> int:
+    
+    x =  A[p]
+    i = p - 1   
+    j = r + 1
+
+    while True:
+        while True:
+            j -= 1
+            if compare(A[j], x) <= 0:
+                break
+        
+        while True:
+            i += 1
+            if compare(A[i], x) >= 0:
+                break
+    
+        if i < j:
+            temp = A[i]
+            A[i] = A[j]
+            A[j] = temp
+        else: 
+            return j
+     
+def quicksort(            
+            A: list, 
+            p: int, 
+            r: int            
+):
+    if p < r:
+        q = partition(A, p, r)  
+        quicksort(A, p, q)      
+        quicksort(A, q + 1, r)  
+
+def test_sorting(array):
+    global compare_amount
+
+    quicksort_list = array.copy()
+    compare_amount = 0
+    t1 = time.time()
+    quicksort(quicksort_list, 0, len(quicksort_list) - 1)
+    t2 = time.time()
+    print(f"Quicksort: {t2 - t1:.4f}s, porownanie: {compare_amount}")
+
+    sort_list = array.copy()
+    compare_amount = 0
+    t1 = time.time()
+    sort_list.sort(key=cmp_to_key(compare))
+    t2 = time.time()
+    print(f"Metoda sort: {t2 - t1:.4f}s, porownanie: {compare_amount}")
+
+def choose_new_pivot(A, p, r):
+    first = A[p]
+    middle = A[(p + r) // 2]
+    last = A[r]
+    
+    if (first <= middle <= last) or (last <= middle <= first):
+        return (p + r) // 2
+    elif (middle <= first <= last) or (last <= first <= middle):
+        return p
+    else:
+        return r
+
+def test_sorting_with_median(array):
+    global compare_amount
+
+    quicksort_list = array.copy()
+    compare_amount = 0
+    t1 = time.time()
+    quicksort(quicksort_list, choose_new_pivot(array), len(quicksort_list) - 1)
+    t2 = time.time()
+    print(f"Quicksort: {t2 - t1:.4f}s, porownanie: {compare_amount}")
+
+    sort_list = array.copy()
+    compare_amount = 0
+    t1 = time.time()
+    sort_list.sort(key=cmp_to_key(compare))
+    t2 = time.time()
+    print(f"Metoda sort: {t2 - t1:.4f}s, porownanie: {compare_amount}")
+
+
+# array = [10, 5, 8, 11, 7, 2, 4, 13]
+# quicksort(array, 0, 7)
+# print(array)
+
+N = 2**20
+shuffled_elements = N // 20
+array1 = [random.randint(0, 1000000) for _ in range(N)] 
+array2 = [random.gauss(0, N) for _ in range(N)] 
+array3 = [0]
+
+for _ in range(N - 1):
+    array3.append(array3[-1] + random.randint(1,5))
+
+for _ in range(shuffled_elements):
+    i = random.randint(0, N - 1)
+    j = random.randint(0, N - 1)
+
+    temp = array3[i]
+    array3[i] = array3[j]
+    array3[j] = temp
+    
+
+print("Test 1")
+test_sorting(array1)
+
+print("Test 2")
+test_sorting(array2)
+
+print("Test 3")
+test_sorting(array3)
+
+print("\nTest 1 mediana")
+test_sorting(array1)
+
+print("Test 2 mediana")
+test_sorting(array2)
+
+print("Test 3 mediana")
+test_sorting(array3)
